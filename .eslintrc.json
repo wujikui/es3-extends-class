@@ -1,0 +1,12 @@
+{
+    "root": true,
+    "extends": "eslint:recommended",
+    "parserOptions": {
+        "ecmaVersion": 3,
+        "impliedStrict": false
+    },
+    "env": {
+        "browser": true,
+        "node": true
+    }
+}

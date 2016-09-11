@@ -1,0 +1,42 @@
+{
+  "name": "es3-extends-class",
+  "title": "extendsObject",
+  "description": "Extends classes as perfect as possible for ES3(JavaScript 1.5))",
+  "version": "0.0.0",
+  "main": "dist/extends-object.js",
+  "homepage": "https://github.com/wujikui/es3-extends-class#readme",
+  "author": "wujikui <wu.kui2@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wujikui/es3-extends-class.git"
+  },
+  "keywords": [
+    "extends",
+    "class",
+    "js",
+    "es3",
+    "1.5",
+    "oo"
+  ],
+  "bugs": {
+    "url": "https://github.com/wujikui/es3-extends-class/issues"
+  },
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {
+    "eslint": "^3.5.0",
+    "gulp": "^3.9.1",
+    "gulp-eslint": "^3.0.1",
+    "gulp-header": "^1.8.8",
+    "gulp-preprocess": "^2.0.0",
+    "gulp-rename": "^1.2.2",
+    "gulp-rm": "^1.0.1",
+    "gulp-sourcemaps": "^1.6.0",
+    "gulp-uglify": "^2.0.0",
+    "mocha": "^3.0.2"
+  },
+  "scripts": {
+    "build": "gulp default",
+    "test": "npm run build & mocha test"
+  }
+}
