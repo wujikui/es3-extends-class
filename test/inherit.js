@@ -1,5 +1,5 @@
 const assert = require('assert');
-const extendsObject = require('../dist/extends-object.js');
+const extendsObject = require('../dist/extends-object.min.js');
 
 describe('Inherit', function () {
 
@@ -111,7 +111,7 @@ describe('Inherit', function () {
             }
         };
         var ChildFunctionClass = extendsObject(ParentClass, ChildFunctionClassDefinition);
-        var funcObj = ChildFunctionClass.new();
+        var funcObj = new ChildFunctionClass(); // also supports ChildFunctionClass.new()
 
         it('speciality', function () {
             assert.equal(true, obj1 === obj2);
