@@ -23,6 +23,12 @@
         if (!isParentObject && !isChildObject) {
             return extendsObjectForFunctionToFunction(parentType, childType);
         }
+        if (isParentObject && isChildObject) {
+            return extendsObjectForObjectToObject(parentType, childType);
+        }
+        if (isParentObject && !isChildObject) {
+            return extendsObjectForObjectToFunction(parentType, childType);
+        }
 
     }
 
@@ -170,6 +176,77 @@
             ResultAnonymousClass.prototype = new DynamicMixinClass(); // dynamic prototype!!!
             ResultAnonymousClass.prototype.constructor = ResultAnonymousClass;
 
+            var withDennyKeyArguments = Array.prototype.slice.call(arguments); // denny new
+            withDennyKeyArguments.push(KEY_DENNY_NEW_OPERATOR);
+            return newObject(ResultAnonymousClass, withDennyKeyArguments);
+        };
+
+        return ResultAnonymousClass;
+    }
+
+    // return result = {
+    //     prototype: result,       // references to itself, we can use it via Result.prototype.foo.call(), what be equivalent to result.foo()
+    //     ...: childType,
+    //     __proto__: {
+    //         ...: parentType
+    //     }
+    // }
+    function extendsObjectForObjectToObject(parentType, childType) {
+
+        var ResultAnonymousClass = function () {
+            for (var key in childType) {
+                if (childType.hasOwnProperty(key)) {
+                    this[key] = childType[key];
+                }
+            }
+        };
+        ResultAnonymousClass.prototype = parentType;
+        ResultAnonymousClass.prototype.constructor = ResultAnonymousClass;
+
+        var resultInstance = new ResultAnonymousClass();
+        resultInstance.prototype = resultInstance; // references to itself, while result is not a function/constructor
+
+        resultInstance['new'] = function () { // keep the same API
+            return resultInstance;
+        };
+
+        return resultInstance; // return is an object, not function/constructor
+    }
+
+    // return new Result() = {
+    //     ...: childType.this,
+    //     __proto__: {
+    //         ...: childType.prototype,
+    //         __proto__: {
+    //             ...: parentType          // parentType is an plain object
+    //         }
+    //     }
+    // }
+    function extendsObjectForObjectToFunction(parentType, childType) {
+
+        var ResultAnonymousClass = function () {
+            var args = Array.prototype.slice.call(arguments);
+            if (args.length === 0 || args[args.length - 1] !== KEY_DENNY_NEW_OPERATOR) {
+                throw new Error('not supports new operator, uses instead of `Type.new()`');
+            }
+            args.pop();
+            childType.apply(this, args);
+        };
+
+        var DynamicMixinClass = function () {
+            for (var key in childType.prototype) {
+                if (childType.prototype.hasOwnProperty(key)) {
+                    this[key] = childType.prototype[key]
+                }
+            }
+        };
+        DynamicMixinClass.prototype = parentType;
+        DynamicMixinClass.prototype.constructor = DynamicMixinClass;
+
+        ResultAnonymousClass.prototype = newObject(DynamicMixinClass, arguments); // prototype is still static
+        ResultAnonymousClass.prototype.constructor = ResultAnonymousClass;
+
+        ResultAnonymousClass['new'] = function () { // just keep the same API. indeed new operator works fine
             var withDennyKeyArguments = Array.prototype.slice.call(arguments); // denny new
             withDennyKeyArguments.push(KEY_DENNY_NEW_OPERATOR);
             return newObject(ResultAnonymousClass, withDennyKeyArguments);
