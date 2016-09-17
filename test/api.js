@@ -1,45 +1,45 @@
 const assert = require('assert');
-const extendsObject = require('../dist/extends-object.js');
+const extendsClass = require('../dist/extends-class.js');
 
 describe('Api', function () {
 
     function negativeIs(action) {
-        assert.equal(false, extendsObject[action](undefined));
-        assert.equal(false, extendsObject[action](true));
-        assert.equal(false, extendsObject[action](false));
-        assert.equal(false, extendsObject[action](''));
-        assert.equal(false, extendsObject[action]('string'));
-        assert.equal(false, extendsObject[action](-1));
-        assert.equal(false, extendsObject[action](0));
-        assert.equal(false, extendsObject[action](1));
-        assert.equal(false, extendsObject[action]({}));
-        assert.equal(false, extendsObject[action](null));
-        assert.equal(false, extendsObject[action](new Object()));
-        assert.equal(false, extendsObject[action](function () {
+        assert.equal(false, extendsClass[action](undefined));
+        assert.equal(false, extendsClass[action](true));
+        assert.equal(false, extendsClass[action](false));
+        assert.equal(false, extendsClass[action](''));
+        assert.equal(false, extendsClass[action]('string'));
+        assert.equal(false, extendsClass[action](-1));
+        assert.equal(false, extendsClass[action](0));
+        assert.equal(false, extendsClass[action](1));
+        assert.equal(false, extendsClass[action]({}));
+        assert.equal(false, extendsClass[action](null));
+        assert.equal(false, extendsClass[action](new Object()));
+        assert.equal(false, extendsClass[action](function () {
         }));
-        assert.equal(false, extendsObject[action](this));
-        assert.equal(false, extendsObject[action](global));
+        assert.equal(false, extendsClass[action](this));
+        assert.equal(false, extendsClass[action](global));
     }
 
     describe('#isWrappedClass', function () {
 
-        var C1 = extendsObject({}, {});
-        var C2 = extendsObject({}, function () {
+        var C1 = extendsClass({}, {});
+        var C2 = extendsClass({}, function () {
         });
-        var C3 = extendsObject(function () {
+        var C3 = extendsClass(function () {
         }, function () {
         });
-        var C4 = extendsObject(C1, C2);
-        var C5 = extendsObject(C1, C3);
-        var C6 = extendsObject(C2, C3);
+        var C4 = extendsClass(C1, C2);
+        var C5 = extendsClass(C1, C3);
+        var C6 = extendsClass(C2, C3);
 
         it('positive', function () {
-            assert.equal(true, extendsObject.isWrappedClass(C1));
-            assert.equal(true, extendsObject.isWrappedClass(C2));
-            assert.equal(true, extendsObject.isWrappedClass(C3));
-            assert.equal(true, extendsObject.isWrappedClass(C4));
-            assert.equal(true, extendsObject.isWrappedClass(C5));
-            assert.equal(true, extendsObject.isWrappedClass(C6));
+            assert.equal(true, extendsClass.isWrappedClass(C1));
+            assert.equal(true, extendsClass.isWrappedClass(C2));
+            assert.equal(true, extendsClass.isWrappedClass(C3));
+            assert.equal(true, extendsClass.isWrappedClass(C4));
+            assert.equal(true, extendsClass.isWrappedClass(C5));
+            assert.equal(true, extendsClass.isWrappedClass(C6));
         });
 
         it('negative', function () {
@@ -49,23 +49,23 @@ describe('Api', function () {
 
     describe('#isWrappedObject', function () {
 
-        var o1 = extendsObject({}, {});
-        var o2 = new (extendsObject({}, function () {
+        var o1 = extendsClass({}, {});
+        var o2 = new (extendsClass({}, function () {
         }))();
-        var o3 = extendsObject(function () {
+        var o3 = extendsClass(function () {
         }, function () {
         }).new();
-        var o4 = extendsObject(o1, o2);
-        var o5 = extendsObject(o1, o3);
-        var o6 = extendsObject(o2, o3);
+        var o4 = extendsClass(o1, o2);
+        var o5 = extendsClass(o1, o3);
+        var o6 = extendsClass(o2, o3);
 
         it('positive', function () {
-            assert.equal(true, extendsObject.isWrappedObject(o1));
-            assert.equal(true, extendsObject.isWrappedObject(o2));
-            assert.equal(true, extendsObject.isWrappedObject(o3));
-            assert.equal(true, extendsObject.isWrappedObject(o4));
-            assert.equal(true, extendsObject.isWrappedObject(o6));
-            assert.equal(true, extendsObject.isWrappedClass(o5));
+            assert.equal(true, extendsClass.isWrappedObject(o1));
+            assert.equal(true, extendsClass.isWrappedObject(o2));
+            assert.equal(true, extendsClass.isWrappedObject(o3));
+            assert.equal(true, extendsClass.isWrappedObject(o4));
+            assert.equal(true, extendsClass.isWrappedObject(o6));
+            assert.equal(true, extendsClass.isWrappedClass(o5));
         });
 
         it('negative', function () {
@@ -76,28 +76,28 @@ describe('Api', function () {
     describe('#isParentClass, isChildClass', function () {
 
         var C1 = {};
-        var C2 = extendsObject({}, function () {
+        var C2 = extendsClass({}, function () {
         });
-        var C3 = extendsObject({}, function () {
+        var C3 = extendsClass({}, function () {
         });
-        var C4 = extendsObject(function () {
+        var C4 = extendsClass(function () {
         }, function () {
         });
 
-        var C5 = extendsObject(C1, C2);
-        var C6 = extendsObject(C2, C3);
+        var C5 = extendsClass(C1, C2);
+        var C6 = extendsClass(C2, C3);
 
-        var C7 = extendsObject(C4, C5);
-        var C8 = extendsObject(C5, C4);
+        var C7 = extendsClass(C4, C5);
+        var C8 = extendsClass(C5, C4);
 
-        var C9 = extendsObject(C2, C8);
-        var C10 = extendsObject(C8, C2);
+        var C9 = extendsClass(C2, C8);
+        var C10 = extendsClass(C8, C2);
 
-        var C11 = extendsObject(C3, C10);
-        var C12 = extendsObject(C10, C3);
+        var C11 = extendsClass(C3, C10);
+        var C12 = extendsClass(C10, C3);
 
-        var C13 = extendsObject(C4, C12);
-        var C14 = extendsObject(C12, C4);
+        var C13 = extendsClass(C4, C12);
+        var C14 = extendsClass(C12, C4);
 
         var parent2child = [
             [1, 5],
@@ -158,7 +158,7 @@ describe('Api', function () {
             for (var i = 1; i <= CL.length; i++) {
                 for (var j = 1; j <= CL.length; j++) {
                     var relation = isParent(i, j);
-                    var executed = extendsObject.isParentClass(CL[j - 1], CL[i - 1]);
+                    var executed = extendsClass.isParentClass(CL[j - 1], CL[i - 1]);
                     if (relation != executed) {
                         debugger;
                     }
@@ -173,7 +173,7 @@ describe('Api', function () {
             for (var i = 1; i <= CL.length; i++) {
                 for (var j = 1; j <= CL.length; j++) {
                     var relation = isChild(i, j);
-                    var executed = extendsObject.isChildClass(CL[i - 1], CL[j - 1]);
+                    var executed = extendsClass.isChildClass(CL[i - 1], CL[j - 1]);
                     if (relation != executed) {
                         debugger;
                     }
@@ -187,15 +187,15 @@ describe('Api', function () {
 
     describe('#isInstanceOf', function () {
 
-        var C1 = extendsObject({}, {});
-        var C2 = extendsObject({}, function () {
+        var C1 = extendsClass({}, {});
+        var C2 = extendsClass({}, function () {
         });
-        var C3 = extendsObject(function () {
+        var C3 = extendsClass(function () {
         }, function () {
         });
-        var C4 = extendsObject(C1, C2);
-        var C5 = extendsObject(C1, C3);
-        var C6 = extendsObject(C2, C3);
+        var C4 = extendsClass(C1, C2);
+        var C5 = extendsClass(C1, C3);
+        var C6 = extendsClass(C2, C3);
 
         var o1 = C1.new();
         var o2 = C2.new();
@@ -208,7 +208,7 @@ describe('Api', function () {
             for (var i = 1; i <= 6; i++) {
                 for (var j = 1; j <= 6; j++) {
                     var relation = i == j || (i == 4 && j == 1) || (i == 5 && j == 1) || (i == 6 && j == 2);
-                    var executed = extendsObject.isInstanceOf(eval('o' + i), eval('C' + j));
+                    var executed = extendsClass.isInstanceOf(eval('o' + i), eval('C' + j));
                     if (relation != executed) {
                         debugger;
                     }

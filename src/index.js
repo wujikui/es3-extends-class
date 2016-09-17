@@ -4,7 +4,7 @@
      * include module
      */
     var exportModule = new function () {
-        return // @include ./extendsObject.js
+        return // @include ./extendsClass.js
     }();
 
     /*

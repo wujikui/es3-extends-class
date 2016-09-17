@@ -8,7 +8,7 @@ describe('Main', function () {
         });
     });
     describe('#module()', function () {
-        const module = require('../dist/extends-object.min.js');
+        const module = require('../dist/extends-class.min.js');
         it('check building module', function () {
             assert(module && module.VERSION)
         });

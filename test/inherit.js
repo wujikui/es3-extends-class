@@ -1,5 +1,5 @@
 const assert = require('assert');
-const extendsObject = require('../dist/extends-object.js');
+const extendsClass = require('../dist/extends-class.js');
 
 describe('Inherit', function () {
 
@@ -36,7 +36,7 @@ describe('Inherit', function () {
                 return this.cf1() + ',' + this.cf2();
             }
         };
-        var ChildClass = extendsObject(ParentClass, ChildClassDefinition);
+        var ChildClass = extendsClass(ParentClass, ChildClassDefinition);
 
         var obj = ChildClass.new();
 
@@ -95,7 +95,7 @@ describe('Inherit', function () {
                 return this.ct;
             }
         };
-        var ChildClass = extendsObject(ParentClass, ChildClassDefinition); // ChildClass is still an Object(not plain) after extended action
+        var ChildClass = extendsClass(ParentClass, ChildClassDefinition); // ChildClass is still an Object(not plain) after extended action
         var obj1 = ChildClass; // because of ChildClass is already an object, you can use it without instantiation
         var obj2 = ChildClass.new(); // just keep the same API, return itself
 
@@ -114,7 +114,7 @@ describe('Inherit', function () {
                 return this.cf1() + ',' + this.cf2();
             }
         };
-        var ChildFunctionClass = extendsObject(ParentClass, ChildFunctionClassDefinition);
+        var ChildFunctionClass = extendsClass(ParentClass, ChildFunctionClassDefinition);
         var funcObj = new ChildFunctionClass(); // also supports ChildFunctionClass.new()
 
         it('speciality', function () {
@@ -224,11 +224,11 @@ describe('Inherit', function () {
         };
 
         var _C1 = C1;
-        var _C2 = extendsObject(_C1, C2);
-        var _C3 = extendsObject(_C2, C3);
-        var _C4 = extendsObject(_C3, C4);
+        var _C2 = extendsClass(_C1, C2);
+        var _C3 = extendsClass(_C2, C3);
+        var _C4 = extendsClass(_C3, C4);
 
-        // var C = extendsObject(extendsObject(extendsObject(C1, C2), C3), C4);
+        // var C = extendsClass(extendsClass(extendsClass(C1, C2), C3), C4);
         var obj = _C4.new('a', 'b', 'c', 'd');
 
         it('arguments value', function () {
@@ -317,9 +317,9 @@ describe('Inherit', function () {
         };
 
         var _C1 = C1;
-        var _C2 = extendsObject(_C1, C2);
-        var _C3 = extendsObject(_C2, C3);
-        var _C4 = extendsObject(_C3, C4);
+        var _C2 = extendsClass(_C1, C2);
+        var _C3 = extendsClass(_C2, C3);
+        var _C4 = extendsClass(_C3, C4);
 
         var obj = _C4.new();
 
@@ -405,7 +405,7 @@ describe('Inherit', function () {
         ChildClassDefinition.csf2 = function () {
             return this.ct;
         };
-        var ChildClass = extendsObject(ParentClass, ChildClassDefinition);
+        var ChildClass = extendsClass(ParentClass, ChildClassDefinition);
 
         it('speciality', function () {
             assert.equal(true, ParentClass.psf === ChildClass.psf);

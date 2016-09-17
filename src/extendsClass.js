@@ -4,7 +4,7 @@
     var KEY_DENNY_NEW_OPERATOR = '$$EXTENDS_OBJECT_DENNY_NEW_OPERATOR-{f74c15f3-5081-40a8-ad09-2d07bc8982bb}$$';
     var KEY_PARENT_TYPE_LIST = '$$EXTENDS_OBJECT_PARENT_TYPE_LIST-{3813ca37-3773-4bc4-8f5c-0b0c2136ea89}$$';
 
-    function extendsObject(parentType, childType) {
+    function extendsClass(parentType, childType) {
 
         /*
          * normalize arguments
@@ -17,7 +17,7 @@
             throw new Error('[invalid param ChildType] arguments[1] should be ' +
                 'a function or object: ' + childType);
         }
-        if (extendsObject.isParentClass(childType, parentType)) {
+        if (extendsClass.isParentClass(childType, parentType)) {
             throw new Error('[invalid param] parentType is already at childType\'s inherited chain');
         }
         if (parentType === childType) {
@@ -48,14 +48,14 @@
 
     }
 
-    extendsObject.isWrappedClass = function (type) {
+    extendsClass.isWrappedClass = function (type) {
         return (type && type[KEY_IDENTITY] === KEY_IDENTITY) || false;
     };
-    extendsObject.isWrappedObject = function (obj) {
-        return (obj && extendsObject.isWrappedClass(obj.constructor)) || false;
+    extendsClass.isWrappedObject = function (obj) {
+        return (obj && extendsClass.isWrappedClass(obj.constructor)) || false;
     };
-    extendsObject.isParentClass = function (type, parentClass) {
-        if (extendsObject.isWrappedClass(type)) {
+    extendsClass.isParentClass = function (type, parentClass) {
+        if (extendsClass.isWrappedClass(type)) {
             var parentTypeList = type[KEY_PARENT_TYPE_LIST];
             for (var i = 0, len = parentTypeList.length; i < len; i++) {
                 if (parentTypeList[i] === parentClass) {
@@ -65,16 +65,16 @@
         }
         return false;
     };
-    extendsObject.isChildClass = function (type, childClass) {
-        return extendsObject.isParentClass(childClass, type);
+    extendsClass.isChildClass = function (type, childClass) {
+        return extendsClass.isParentClass(childClass, type);
     };
-    extendsObject.isInstanceOf = function (obj, type) {
+    extendsClass.isInstanceOf = function (obj, type) {
         if (typeof obj === 'object') {
             if (typeof type === 'function') {
                 return obj instanceof type;
             } else if (typeof type === 'object') {
-                return (extendsObject.isWrappedObject(obj) && obj === type) ||
-                    obj.constructor === type || extendsObject.isParentClass(obj.constructor, type);
+                return (extendsClass.isWrappedObject(obj) && obj === type) ||
+                    obj.constructor === type || extendsClass.isParentClass(obj.constructor, type);
             }
         }
         return false;
@@ -176,7 +176,7 @@
 
         ResultAnonymousClass['new'] = function () { // not allowed to uses new operator
 
-            var parentInstance = extendsObject.isWrappedClass(parentType) ?
+            var parentInstance = extendsClass.isWrappedClass(parentType) ?
                 parentType.new.apply(parentType, arguments) : newObject(parentType, arguments);
             DynamicMixinClass.prototype = parentInstance;
             DynamicMixinClass.prototype.constructor = parentType; // TODO ?? what happened!  now `parentInstance.constructor === parentType`
@@ -354,6 +354,6 @@
         // });
     }
 
-    return extendsObject;
+    return extendsClass;
 
 })();

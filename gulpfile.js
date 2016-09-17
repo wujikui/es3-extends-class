@@ -11,7 +11,7 @@ const pkg = require('./package.json');
 
 const SRC_ENTRY = './src/index.js';
 const DIST_PATH = './dist/';
-const DIST_NAME = 'extends-object';
+const DIST_NAME = 'extends-class';
 
 gulp.task('dev', function () {
     return gulp.src([SRC_ENTRY])
