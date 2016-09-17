@@ -154,11 +154,11 @@ Supports AMD / CMD / CommonJS / NodeJS / window global object.
 
 ## Building project
 
-    ```bash
-    npm install
-    npm run build
-    npm run test
-    ```
+```bash
+npm install
+npm run build
+npm run test
+```
 
 ## Test
 
