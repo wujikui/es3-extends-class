@@ -17,6 +17,12 @@
             throw new Error('[invalid param ChildType] arguments[1] should be ' +
                 'a function or object: ' + childType);
         }
+        if (extendsObject.isParentClass(childType, parentType)) {
+            throw new Error('[invalid param] parentType is already at childType\'s inherited chain');
+        }
+        if (parentType === childType) {
+            throw new Error('[invalid param] cannot inherit from itself');
+        }
 
         /*
          * affirm extends pattern

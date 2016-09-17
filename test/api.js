@@ -96,7 +96,7 @@ describe('Api', function () {
         var C11 = extendsObject(C3, C10);
         var C12 = extendsObject(C10, C3);
 
-        var C13 = extendsObject(C1, C12);
+        var C13 = extendsObject(C4, C12);
         var C14 = extendsObject(C12, C4);
 
         var parent2child = [
@@ -108,7 +108,7 @@ describe('Api', function () {
             [8, 10],
             [3, 11],
             [10, 12],
-            [1, 13],
+            [4, 13],
             [12, 14]
         ];
         var isParent = function (parent, child) {
