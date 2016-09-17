@@ -2,7 +2,7 @@
   "name": "es3-extends-class",
   "title": "extendsClass",
   "description": "Extends classes as perfect as possible for ES3(JavaScript 1.5))",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "main": "dist/extends-class.js",
   "homepage": "https://github.com/wujikui/es3-extends-class#readme",
   "author": "wujikui <wu.kui2@gmail.com>",
