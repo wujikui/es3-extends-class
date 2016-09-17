@@ -384,4 +384,43 @@ describe('Inherit', function () {
 
     });
 
+    describe('#static', function () {
+
+        var ParentClass = function () {
+        };
+        ParentClass.pt = 'pt';
+        ParentClass.psf = function () {
+            return ParentClass.pt;
+        };
+        ParentClass.psf2 = function () {
+            return this.pt;
+        };
+
+        var ChildClassDefinition = function () {
+        };
+        ChildClassDefinition.ct = 'ct';
+        ChildClassDefinition.csf = function () {
+            return ChildClassDefinition.ct;
+        };
+        ChildClassDefinition.csf2 = function () {
+            return this.ct;
+        };
+        var ChildClass = extendsObject(ParentClass, ChildClassDefinition);
+
+        it('speciality', function () {
+            assert.equal(true, ParentClass.psf === ChildClass.psf);
+            assert.equal('pt', ChildClass.psf());
+            assert.equal('pt', ChildClass.psf2());
+        });
+        it('properties', function () {
+            assert.equal('pt', ParentClass.pt);
+            assert.equal('ct', ChildClass.ct);
+        });
+        it('methods', function () {
+            assert.equal('pt', ParentClass.psf());
+            assert.equal('ct', ChildClass.csf());
+        });
+
+    })
+
 });

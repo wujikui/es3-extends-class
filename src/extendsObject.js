@@ -105,6 +105,21 @@
             return proto;
         }());
 
+        (function () {
+            for (var key in parentType) {
+                if (key !== 'prototype') {
+                    ResultAnonymousClass[key] = parentType[key];
+                }
+            }
+        })();
+        (function () {
+            for (var key in childType) {
+                if (key !== 'prototype') {
+                    ResultAnonymousClass[key] = childType[key];
+                }
+            }
+        })();
+
         var DynamicMixinClass = function () {
             var prototype = childType.prototype;
             for (var key in prototype) {
