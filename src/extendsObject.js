@@ -2,6 +2,7 @@
 
     var KEY_IDENTITY = '$$EXTENDS_OBJECT_CLASS-{08929965-827f-45a7-bcbf-81afeefbf65f}$$';
     var KEY_DENNY_NEW_OPERATOR = '$$EXTENDS_OBJECT_DENNY_NEW_OPERATOR-{f74c15f3-5081-40a8-ad09-2d07bc8982bb}$$';
+    var KEY_PARENT_TYPE_LIST = '$$EXTENDS_OBJECT_PARENT_TYPE_LIST-{3813ca37-3773-4bc4-8f5c-0b0c2136ea89}$$';
 
     function extendsObject(parentType, childType) {
 
@@ -40,6 +41,38 @@
         }
 
     }
+
+    extendsObject.isWrappedClass = function (type) {
+        return (type && type[KEY_IDENTITY] === KEY_IDENTITY) || false;
+    };
+    extendsObject.isWrappedObject = function (obj) {
+        return (obj && extendsObject.isWrappedClass(obj.constructor)) || false;
+    };
+    extendsObject.isParentClass = function (type, parentClass) {
+        if (extendsObject.isWrappedClass(type)) {
+            var parentTypeList = type[KEY_PARENT_TYPE_LIST];
+            for (var i = 0, len = parentTypeList.length; i < len; i++) {
+                if (parentTypeList[i] === parentClass) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    };
+    extendsObject.isChildClass = function (type, childClass) {
+        return extendsObject.isParentClass(childClass, type);
+    };
+    extendsObject.isInstanceOf = function (obj, type) {
+        if (typeof obj === 'object') {
+            if (typeof type === 'function') {
+                return obj instanceof type;
+            } else if (typeof type === 'object') {
+                return (extendsObject.isWrappedObject(obj) && obj === type) ||
+                    obj.constructor === type || extendsObject.isParentClass(obj.constructor, type);
+            }
+        }
+        return false;
+    };
 
     // return new Result() = {
     //     ...: childType.this,
@@ -89,7 +122,6 @@
 
             }
         };
-        ResultAnonymousClass[KEY_IDENTITY] = KEY_IDENTITY;
         ResultAnonymousClass.prototype = (function () {
             // Type.prototype will changed when instantiates Type every time
             // initial prototype will be replaced after instantiated Type
@@ -105,16 +137,23 @@
             return proto;
         }());
 
+        ResultAnonymousClass[KEY_IDENTITY] = KEY_IDENTITY;
+        ResultAnonymousClass[KEY_PARENT_TYPE_LIST] = [];
+        if (parentType[KEY_PARENT_TYPE_LIST]) {
+            ResultAnonymousClass[KEY_PARENT_TYPE_LIST] = parentType[KEY_PARENT_TYPE_LIST].slice(0);
+        }
+        ResultAnonymousClass[KEY_PARENT_TYPE_LIST].push(parentType);
+
         (function () {
             for (var key in parentType) {
-                if (key !== 'prototype') {
+                if (key !== 'prototype' && key !== KEY_IDENTITY && key !== KEY_PARENT_TYPE_LIST) {
                     ResultAnonymousClass[key] = parentType[key];
                 }
             }
         })();
         (function () {
             for (var key in childType) {
-                if (key !== 'prototype') {
+                if (key !== 'prototype' && key !== KEY_IDENTITY && key !== KEY_PARENT_TYPE_LIST) {
                     ResultAnonymousClass[key] = childType[key];
                 }
             }
@@ -131,7 +170,7 @@
 
         ResultAnonymousClass['new'] = function () { // not allowed to uses new operator
 
-            var parentInstance = parentType[KEY_IDENTITY] === KEY_IDENTITY ?
+            var parentInstance = extendsObject.isWrappedClass(parentType) ?
                 parentType.new.apply(parentType, arguments) : newObject(parentType, arguments);
             DynamicMixinClass.prototype = parentInstance;
             DynamicMixinClass.prototype.constructor = parentType; // TODO ?? what happened!  now `parentInstance.constructor === parentType`
@@ -169,12 +208,20 @@
             };
             this.$$isReconstructing = false;
         };
-        ResultAnonymousClass[KEY_IDENTITY] = KEY_IDENTITY;
         ResultAnonymousClass.prototype = parentType;
         ResultAnonymousClass.prototype.constructor = ResultAnonymousClass;
 
+        ResultAnonymousClass[KEY_IDENTITY] = KEY_IDENTITY;
+        ResultAnonymousClass[KEY_PARENT_TYPE_LIST] = [];
+        if (parentType[KEY_PARENT_TYPE_LIST]) {
+            ResultAnonymousClass[KEY_PARENT_TYPE_LIST] = parentType[KEY_PARENT_TYPE_LIST].slice(0);
+        }
+        ResultAnonymousClass[KEY_PARENT_TYPE_LIST].push(parentType);
+
         var resultAnonymousInstance = new ResultAnonymousClass();
         resultAnonymousInstance.prototype = resultAnonymousInstance; // references to itself, while result is not a function/constructor
+        resultAnonymousInstance[KEY_IDENTITY] = ResultAnonymousClass[KEY_IDENTITY];
+        resultAnonymousInstance[KEY_PARENT_TYPE_LIST] = ResultAnonymousClass[KEY_PARENT_TYPE_LIST];
 
         resultAnonymousInstance['new'] = function () { // keep the same API
             return resultAnonymousInstance;
@@ -201,7 +248,6 @@
                 }
             }
         };
-        DynamicMixinClass[KEY_IDENTITY] = KEY_IDENTITY;
         DynamicMixinClass.prototype = parentType;
         DynamicMixinClass.prototype.constructor = DynamicMixinClass;
         var dynamicMixinInstance = new DynamicMixinClass();
@@ -216,9 +262,15 @@
             childType.apply(this, arguments);
             this.$$parent.isExecutingNativeConstructor = false;
         };
-        ResultAnonymousClass[KEY_IDENTITY] = KEY_IDENTITY;
         ResultAnonymousClass.prototype = dynamicMixinInstance; // prototype is still static
         ResultAnonymousClass.prototype.constructor = ResultAnonymousClass;
+
+        ResultAnonymousClass[KEY_IDENTITY] = KEY_IDENTITY;
+        ResultAnonymousClass[KEY_PARENT_TYPE_LIST] = [];
+        if (parentType[KEY_PARENT_TYPE_LIST]) {
+            ResultAnonymousClass[KEY_PARENT_TYPE_LIST] = parentType[KEY_PARENT_TYPE_LIST].slice(0);
+        }
+        ResultAnonymousClass[KEY_PARENT_TYPE_LIST].push(parentType);
 
         ResultAnonymousClass['new'] = function () { // just keep the same API. we can also use new operator
             return newObject(ResultAnonymousClass, arguments);
