@@ -57,7 +57,7 @@ Supports AMD / CMD / CommonJS / NodeJS / window global object.
     assert.ok(obj instanceof ParentClass);
     assert.ok(obj.constructor === ChildClass2);
     assert.ok(obj.$$parent.constructor == ChildClass1);
-    assert.ok(obj.$$parent.$$parent === ParentClass);
+    assert.ok(obj.$$parent.$$parent.constructor === ParentClass);
     
     ```
 
