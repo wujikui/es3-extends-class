@@ -1,5 +1,6 @@
 (function () {
 
+    var KEY_IDENTITY = '$$EXTENDS_OBJECT_CLASS-{08929965-827f-45a7-bcbf-81afeefbf65f}$$';
     var KEY_DENNY_NEW_OPERATOR = '$$EXTENDS_OBJECT_DENNY_NEW_OPERATOR-{f74c15f3-5081-40a8-ad09-2d07bc8982bb}$$';
 
     function extendsObject(parentType, childType) {
@@ -55,13 +56,40 @@
     function functionToFunction(parentType, childType) {
 
         var ResultAnonymousClass = function () {
-            var args = Array.prototype.slice.call(arguments);
-            if (args.length === 0 || args[args.length - 1] !== KEY_DENNY_NEW_OPERATOR) {
-                throw new Error('not supports new operator, uses instead of `Type.new()`');
+
+            if (!this.hasOwnProperty('$$parent')) { // new
+
+                var args = Array.prototype.slice.call(arguments);
+                if (args.pop() !== KEY_DENNY_NEW_OPERATOR) {
+                    throw new Error('not supports new operator, uses instead of `Type.new()`');
+                }
+
+                this.$$parent = args.pop();
+                // uses `this.$$reconstruct(arg1...)` to call parentType's constructor
+                // this would cause executes constructor on inherited chain again, from baseClass to subClass
+                this.$$reconstruct = (function (parent) {
+                    return function () {
+                        parent.constructor.apply(parent, arguments);
+                    }
+                })(this.$$parent);
+                this.$$isReconstructing = false;
+
+                childType.apply(this, args);
+
+            } else { // reconstruct
+
+                // user can also call `ParentType.apply(parentInstance, [])` instead of `this.$$reconstruct(...)`
+
+                this.$$isReconstructing = true;
+
+                this.$$parent.constructor.apply(this.$$parent, arguments);
+                childType.apply(this, arguments);
+
+                this.$$isReconstructing = false;
+
             }
-            args.pop();
-            childType.apply(this, args)
         };
+        ResultAnonymousClass[KEY_IDENTITY] = KEY_IDENTITY;
         ResultAnonymousClass.prototype = (function () {
             // Type.prototype will changed when instantiates Type every time
             // initial prototype will be replaced after instantiated Type
@@ -78,24 +106,29 @@
         }());
 
         var DynamicMixinClass = function () {
-            for (var key in childType.prototype) {
-                if (childType.prototype.hasOwnProperty(key)) {
-                    this[key] = childType.prototype[key]
+            var prototype = childType.prototype;
+            for (var key in prototype) {
+                if (prototype.hasOwnProperty(key)) {
+                    this[key] = prototype[key]
                 }
             }
         };
 
         ResultAnonymousClass['new'] = function () { // not allowed to uses new operator
 
-            DynamicMixinClass.prototype = newObject(parentType, arguments); // dynamic prototype!!!
-            DynamicMixinClass.prototype.constructor = DynamicMixinClass;
+            var parentInstance = parentType[KEY_IDENTITY] === KEY_IDENTITY ?
+                parentType.new.apply(parentType, arguments) : newObject(parentType, arguments);
+            DynamicMixinClass.prototype = parentInstance;
+            DynamicMixinClass.prototype.constructor = parentType; // TODO ?? what happened!  now `parentInstance.constructor === parentType`
 
             ResultAnonymousClass.prototype = new DynamicMixinClass(); // dynamic prototype!!!
             ResultAnonymousClass.prototype.constructor = ResultAnonymousClass;
 
-            var withDennyKeyArguments = Array.prototype.slice.call(arguments); // denny new
-            withDennyKeyArguments.push(KEY_DENNY_NEW_OPERATOR);
-            return newObject(ResultAnonymousClass, withDennyKeyArguments);
+            var wrappedArguments = Array.prototype.slice.call(arguments);
+            wrappedArguments.push(parentInstance);
+            wrappedArguments.push(KEY_DENNY_NEW_OPERATOR); // denny new
+
+            return newObject(ResultAnonymousClass, wrappedArguments);
         };
 
         return ResultAnonymousClass;
@@ -116,7 +149,12 @@
                     this[key] = childType[key];
                 }
             }
+            this.$$parent = parentType; // just keep the same API
+            this.$$reconstruct = function () {
+            };
+            this.$$isReconstructing = false;
         };
+        ResultAnonymousClass[KEY_IDENTITY] = KEY_IDENTITY;
         ResultAnonymousClass.prototype = parentType;
         ResultAnonymousClass.prototype.constructor = ResultAnonymousClass;
 
@@ -148,13 +186,22 @@
                 }
             }
         };
+        DynamicMixinClass[KEY_IDENTITY] = KEY_IDENTITY;
         DynamicMixinClass.prototype = parentType;
         DynamicMixinClass.prototype.constructor = DynamicMixinClass;
         var dynamicMixinInstance = new DynamicMixinClass();
 
         var ResultAnonymousClass = function () {
+            if (!this.hasOwnProperty('$$parent')) {
+                this.$$parent = parentType; // just keep the same API
+                this.$$reconstruct = function () {
+                };
+                this.$$isReconstructing = true;
+            }
             childType.apply(this, arguments);
+            this.$$parent.isExecutingNativeConstructor = false;
         };
+        ResultAnonymousClass[KEY_IDENTITY] = KEY_IDENTITY;
         ResultAnonymousClass.prototype = dynamicMixinInstance; // prototype is still static
         ResultAnonymousClass.prototype.constructor = ResultAnonymousClass;
 
@@ -232,14 +279,6 @@
         //     console.log(result.join('\n'));
         //     console.log('\n\n\n\n');
         // });
-
-
-        // or use extended class
-        // var AnonymousNewClass = function () {
-        //     constructor.apply(this, args);
-        // };
-        // AnonymousNewClass.prototype = constructor.prototype;
-        // return new AnonymousNewClass();
     }
 
     return extendsObject;
